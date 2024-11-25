@@ -1,0 +1,204 @@
+AIM: 
+Write a C program to given Library Management System-Manage books ,issue records ,and track availability. 
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+#define MAX_BOOKS 100
+#define MAX_ISSUES 100
+#define MAX_USERS 50
+
+
+struct Book {
+    int id;
+    char title[100];
+    char author[100];
+    int isAvailable; 
+};
+
+
+struct IssueRecord {
+    int bookId;
+    int userId;
+    char issueDate[20];
+    char returnDate[20];
+};
+
+
+struct Book library[MAX_BOOKS];
+struct IssueRecord issues[MAX_ISSUES];
+void addBook(int id, const char *title, const char *author) {
+    for (int i = 0; i < MAX_BOOKS; i++) {
+        if (library[i].id == 0) {  
+            library[i].id = id;
+
+
+            strcpy(library[i].title, title);
+            strcpy(library[i].author, author);
+            library[i].isAvailable = 1;
+            printf("Book '%s' added successfully!\n", title);
+            return;
+        }
+    }
+    printf("Library is full, cannot add more books.\n");
+}
+
+
+void listBooks() {
+    printf("\nList of Books:\n");
+    printf("-----------------------------\n");
+    for (int i = 0; i < MAX_BOOKS; i++) {
+        if (library[i].id != 0) { 
+            printf("ID: %d | Title: %s | Author: %s | %s\n",
+                   library[i].id,
+                   library[i].title,
+                   library[i].author,
+                   library[i].isAvailable ? "Available" : "Issued");
+        }
+    }
+    printf("-----------------------------\n");
+}
+
+
+void issueBook(int bookId, int userId, const char *issueDate) {
+    for (int i = 0; i < MAX_BOOKS; i++) {
+        if (library[i].id == bookId) {
+            if (library[i].isAvailable) {
+                
+                library[i].isAvailable = 0;
+
+                
+                for (int j = 0; j < MAX_ISSUES; j++) {
+                    if (issues[j].bookId == 0) {
+                        issues[j].bookId = bookId;
+                        issues[j].userId = userId;
+                        strcpy(issues[j].issueDate, issueDate);
+                        strcpy(issues[j].returnDate, "Not Returned");
+                        printf("Book '%s' issued to User %d on %s.\n", library[i].title, userId, issueDate);
+                        return;
+                    }
+                }
+                printf("No more issue records can be stored.\n");
+                return;
+            } else {
+                printf("Book '%s' is currently unavailable.\n", library[i].title);
+                return;
+            }
+        }
+    }
+    printf("Book not found in the library.\n");
+}
+
+void returnBook(int bookId, const char *returnDate) {
+    for (int i = 0; i < MAX_ISSUES; i++) {
+        if (issues[i].bookId == bookId && strcmp(issues[i].returnDate, "Not Returned") == 0) {
+            
+            for (int j = 0; j < MAX_BOOKS; j++) {
+                if (library[j].id == bookId) {
+                    library[j].isAvailable = 1;
+                    printf("Book '%s' has been returned.\n", library[j].title);
+                    break;
+                }
+            }
+            
+            strcpy(issues[i].returnDate, returnDate);
+            return;
+        }
+    }
+    printf("No issue record found for the given book.\n");
+}
+
+
+void checkAvailability(int bookId) {
+    for (int i = 0; i < MAX_BOOKS; i++) {
+        if (library[i].id == bookId) {
+            if (library[i].isAvailable) {
+                printf("Book '%s' is available.\n", library[i].title);
+            } else {
+                printf("Book '%s' is currently issued.\n", library[i].title);
+            }
+            return;
+        }
+    }
+    printf("Book not found.\n");
+}
+
+int main() {
+    int choice, bookId, userId;
+    char title[100], author[100], issueDate[20], returnDate[20];
+
+    while (1) {
+        printf("\nLibrary Management System\n");
+        printf("1. Add Book\n");
+        printf("2. List Books\n");
+        printf("3. Issue Book\n");
+        printf("4. Return Book\n");
+        printf("5. Check Availability\n");
+        printf("6. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        getchar();
+        switch (choice) {
+            case 1:
+                
+                printf("Enter Book ID: ");
+                scanf("%d", &bookId);
+                getchar(); 
+                printf("Enter Book Title: ");
+                fgets(title, sizeof(title), stdin);
+                title[strcspn(title, "\n")] = '\0'; 
+                printf("Enter Book Author: ");
+                fgets(author, sizeof(author), stdin);
+                author[strcspn(author, "\n")] = '\0'; 
+                addBook(bookId, title, author);
+                break;
+
+            case 2:
+                
+                listBooks();
+                break;
+
+            case 3:
+                
+                printf("Enter Book ID: ");
+                scanf("%d", &bookId);
+                printf("Enter User ID: ");
+                scanf("%d", &userId);
+                getchar(); 
+                printf("Enter Issue Date (DD/MM/YYYY): ");
+                fgets(issueDate, sizeof(issueDate), stdin);
+                issueDate[strcspn(issueDate, "\n")] = '\0'; // 
+                issueBook(bookId, userId, issueDate);
+                break;
+
+            case 4:
+                
+                printf("Enter Book ID: ");
+                scanf("%d", &bookId);
+                getchar(); 
+                printf("Enter Return Date (DD/MM/YYYY): ");
+                fgets(returnDate, sizeof(returnDate), stdin);
+                returnDate[strcspn(returnDate, "\n")] = '\0'; // 
+                returnBook(bookId, returnDate);
+                break;
+
+            case 5:
+                
+                printf("Enter Book ID: ");
+                scanf("%d", &bookId);
+                checkAvailability(bookId);
+                break;
+
+            case 6:
+                
+                printf("Exiting the program.\n");
+                exit(0);
+
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    }
+
+    return 0;
+}
