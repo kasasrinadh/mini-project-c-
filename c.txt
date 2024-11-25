@@ -202,3 +202,14 @@ int main() {
 
     return 0;
 }
+output:
+         Library Management System
+    1. add bok
+    2.display all books
+    3.issue books
+    4.return book
+    5.exit
+           enter your choice:1
+           enter title of the book:c programming
+           enter author of the book:dennis ritchie
+           book added successfully!book ID is 1
